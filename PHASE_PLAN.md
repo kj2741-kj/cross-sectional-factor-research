@@ -40,7 +40,7 @@ is therefore part of the design, not a robustness afterthought.
 |---|---|---|---|
 | P0 DONE | CRSP universe: `msf`, `msenames`, `msedelist`. Filters, delisting-return splicing, market equity. | Sonnet | |
 | P1 DONE | Compustat `funda` merge via CCM `ccmxpf_lnkhist`, Fama-French timing conventions. | Sonnet | |
-| P2 DONE | Six signals: value, momentum, size, profitability, investment, idiosyncratic volatility. | Sonnet | |
+| P2 DONE | Six signals: value, momentum, size, profitability, investment, short-term reversal (substituted for idiosyncratic vol, see src/signals.py). | Sonnet | |
 | P3 DONE | Portfolio formation: NYSE-breakpoint deciles, value- and equal-weighted, long-short series. | Opus | |
 | P4 DONE | Evaluation: Newey-West t-stats, FF3/FF5 alpha attribution, Fama-MacBeth, multiple-testing hurdle. | Opus | |
 | P5 DONE | Regime detection: HMM on market return and volatility; validate states are economically meaningful. | Fable 5 | |
