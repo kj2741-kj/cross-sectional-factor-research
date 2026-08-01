@@ -6,3 +6,5 @@ scikit-learn
 matplotlib
 pyarrow
 wrds
+openassetpricing
+hmmlearn

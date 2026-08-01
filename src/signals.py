@@ -12,12 +12,18 @@ Six signals, all standard and all computable from monthly data:
   inv      asset growth
   rev      prior-month return (short-term reversal)
 
-Idiosyncratic volatility was in the original scope but is normally estimated
-from daily returns within the month (Ang et al. 2006). Estimating it from
-monthly data over a multi-year window measures something materially different
-and would not be comparable to the published factor. Short-term reversal
-(Jegadeesh 1990) is substituted: equally canonical, and honestly computable from
-the data actually in hand.
+Volatility signals are estimated from a trailing 36-month window rather than
+from daily returns within the month as Ang et al. (2006) do. That is a genuine
+difference: a monthly-window estimate is a slower-moving, lower-frequency
+quantity than theirs, so these are *not* strictly comparable to the published
+idiosyncratic-volatility factor. They are included because the low-volatility
+anomaly is one of the best-documented effects in the literature (Frazzini and
+Pedersen 2014, Ang et al. 2006) and omitting it entirely would leave a real hole,
+which is what the first version of this study did.
+
+`ivol` uses the closed-form single-factor residual variance,
+var(r) - beta^2 * var(m), which is exact for a one-factor model and avoids
+running a rolling regression per stock over three million rows.
 
 The momentum gap matters. Skipping month t-1 avoids contaminating the momentum
 signal with short-term reversal, which is a distinct and opposite-signed effect.
@@ -30,13 +36,14 @@ import pandas as pd
 
 PROCESSED = os.path.join(os.path.dirname(__file__), "..", "data", "processed")
 
-SIGNALS = ["size", "value", "mom", "prof", "inv", "rev"]
+SIGNALS = ["size", "value", "mom", "prof", "inv", "rev", "lowvol", "ivol"]
 
 # Sign convention: +1 means a high signal value is the expected-high-return leg.
 # Size and investment are inverted because small firms and low-investment firms
 # are the documented winners, so the long leg is the BOTTOM decile.
 SIGNAL_DIRECTION = {"size": -1, "value": +1, "mom": +1,
-                    "prof": +1, "inv": -1, "rev": -1}
+                    "prof": +1, "inv": -1, "rev": -1,
+                    "lowvol": -1, "ivol": -1}
 
 SIGNAL_LABELS = {
     "size": "Size (small minus big)",
@@ -45,6 +52,8 @@ SIGNAL_LABELS = {
     "prof": "Profitability (robust minus weak)",
     "inv": "Investment (conservative minus aggressive)",
     "rev": "Short-term reversal",
+    "lowvol": "Low volatility (total)",
+    "ivol": "Low idiosyncratic volatility",
 }
 
 
@@ -66,6 +75,41 @@ def compute_past_return_signals(panel):
 
     p["rev"] = p.groupby("permno")["ret_adj"].shift(1)
     return p.drop(columns=["logret"])
+
+
+def compute_volatility_signals(panel, market, window=36, min_periods=24):
+    """Trailing total and idiosyncratic volatility, per stock.
+
+    Both are strictly backward-looking: the rolling window ends at t-1, so the
+    month being predicted never enters its own predictor.
+    """
+    p = panel.sort_values(["permno", "date"]).copy()
+    mkt = pd.Series(market).rename("mkt")
+    p = p.merge(mkt, left_on="date", right_index=True, how="left")
+
+    g = p.groupby("permno")
+    r, m = p["ret_adj"], p["mkt"]
+
+    def roll(series, fn):
+        return series.groupby(p["permno"]).transform(
+            lambda s: getattr(s.rolling(window, min_periods=min_periods), fn)())
+
+    var_r = roll(r, "var")
+    var_m = roll(m, "var")
+    cov_rm = (r * m).groupby(p["permno"]).transform(
+        lambda s: s.rolling(window, min_periods=min_periods).mean())
+    mean_r = roll(r, "mean")
+    mean_m = roll(m, "mean")
+    cov = cov_rm - mean_r * mean_m
+
+    beta = cov / var_m.where(var_m > 0)
+    idio_var = (var_r - beta ** 2 * var_m).clip(lower=0)
+
+    # Shift so the estimate uses only data through t-1.
+    p["lowvol"] = np.sqrt(var_r).groupby(p["permno"]).shift(1)
+    p["ivol"] = np.sqrt(idio_var).groupby(p["permno"]).shift(1)
+    p["beta_est"] = beta.groupby(p["permno"]).shift(1)
+    return p.drop(columns=["mkt"])
 
 
 def attach_formation_data(panel, fundamentals):
@@ -99,8 +143,8 @@ def attach_formation_data(panel, fundamentals):
     return p
 
 
-def build_signal_panel(processed_dir=None, save=True):
-    """Run P2 and return the monthly panel with all six signals."""
+def build_signal_panel(processed_dir=None, save=True, market=None):
+    """Run P2 and return the monthly panel with all signals."""
     processed_dir = processed_dir or PROCESSED
     uni = pd.read_parquet(os.path.join(processed_dir, "universe.parquet"))
     fund = pd.read_parquet(os.path.join(processed_dir, "fundamentals.parquet"))
@@ -110,6 +154,10 @@ def build_signal_panel(processed_dir=None, save=True):
     uni = uni[uni["is_primary"]].copy()
 
     p = compute_past_return_signals(uni)
+    if market is None:
+        from factors import benchmark_set
+        market = benchmark_set("ff3")[0]["Mkt-RF"]
+    p = compute_volatility_signals(p, market)
     p = attach_formation_data(p, fund)
 
     p["size"] = p["me_june"]
@@ -118,7 +166,7 @@ def build_signal_panel(processed_dir=None, save=True):
     p.loc[~(p["me_dec"] > 0), "value"] = np.nan
 
     keep = ["permno", "date", "ret_adj", "me", "me_june", "exchcd", "siccd",
-            "formation_year"] + SIGNALS
+            "formation_year", "beta_est"] + SIGNALS
     out = p[keep].sort_values(["date", "permno"]).reset_index(drop=True)
 
     stats = {"rows": len(out), "n_permnos": int(out["permno"].nunique())}
