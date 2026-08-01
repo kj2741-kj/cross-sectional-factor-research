@@ -38,15 +38,15 @@ is therefore part of the design, not a robustness afterthought.
 
 | Phase | Content | Model | Status |
 |---|---|---|---|
-| P0 | CRSP universe: `msf`, `msenames`, `msedelist`. Filters, delisting-return splicing, market equity. | Sonnet | |
-| P1 | Compustat `funda` merge via CCM `ccmxpf_lnkhist`, Fama-French timing conventions. | Sonnet | |
-| P2 | Six signals: value, momentum, size, profitability, investment, idiosyncratic volatility. | Sonnet | |
-| P3 | Portfolio formation: NYSE-breakpoint deciles, value- and equal-weighted, long-short series. | Opus | |
-| P4 | Evaluation: Newey-West t-stats, FF3/FF5 alpha attribution, Fama-MacBeth, multiple-testing hurdle. | Opus | |
-| P5 | Regime detection: HMM on market return and volatility; validate states are economically meaningful. | Fable 5 | |
-| P6 | Regime-conditional premia + Daniel-Moskowitz momentum-crash replication. | Fable 5 | |
-| P7 | Regime-conditional strategy with honest out-of-sample test. | Opus | |
-| P8 | Report and dashboard. | Sonnet | |
+| P0 DONE | CRSP universe: `msf`, `msenames`, `msedelist`. Filters, delisting-return splicing, market equity. | Sonnet | |
+| P1 DONE | Compustat `funda` merge via CCM `ccmxpf_lnkhist`, Fama-French timing conventions. | Sonnet | |
+| P2 DONE | Six signals: value, momentum, size, profitability, investment, idiosyncratic volatility. | Sonnet | |
+| P3 DONE | Portfolio formation: NYSE-breakpoint deciles, value- and equal-weighted, long-short series. | Opus | |
+| P4 DONE | Evaluation: Newey-West t-stats, FF3/FF5 alpha attribution, Fama-MacBeth, multiple-testing hurdle. | Opus | |
+| P5 DONE | Regime detection: HMM on market return and volatility; validate states are economically meaningful. | Fable 5 | |
+| P6 DONE | Regime-conditional premia + Daniel-Moskowitz momentum-crash replication. | Fable 5 | |
+| P7 DONE | Regime-conditional strategy with honest out-of-sample test. | Opus | |
+| P8 DONE | Report and dashboard. | Sonnet | |
 
 ## Methodology decisions locked up front
 

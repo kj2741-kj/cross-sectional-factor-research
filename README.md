@@ -8,9 +8,33 @@ Full scope, methodology decisions and phase status in [`PHASE_PLAN.md`](PHASE_PL
 
 ## Status
 
-- **P0 complete** — CRSP universe built: 3,421,715 monthly observations, 26,200 stocks,
-  744 months (1963-01 to 2024-12). 16 tests passing.
-- P1-P8 pending.
+**Complete, P0 through P8.** Full written results in [`docs/FINDINGS.md`](docs/FINDINGS.md).
+
+Universe: 3,421,715 monthly observations, 26,200 stocks, 744 months (1963-01 to 2024-12).
+
+### Headline results
+
+1. **Value weighting decides which premia exist.** Short-term reversal is 0.30%/month
+   value-weighted and 1.84% equal-weighted. Half these signals are equal-weight artifacts.
+2. **Under multiple-testing correction, only momentum survives the full sample**
+   value-weighted (Benjamini-Hochberg FDR and Harvey-Liu-Zhu t > 3.0). Value has a
+   *negative* FF3 alpha: HML already captures it.
+3. **Post-2003, nothing survives value-weighted.** Zero signals clear either hurdle.
+   Momentum decays 84%; four of six flip sign. This is a direct confirmation of
+   McLean-Pontiff (2016) post-publication decay, and was pre-registered as an
+   acceptable outcome.
+4. **Momentum crashes replicate exactly.** The bear-market flag alone is insignificant
+   (-0.35%/mo, t = -0.33); the crash is the *interaction* with a rebounding market
+   (-3.54%/mo, t = -2.42, worst month -45.6%). In a falling bear market momentum earns
+   +4.78%/month.
+5. **The HMM does not earn its complexity.** Daniel-Moskowitz's simple published rule
+   lifts momentum's Sharpe 0.62 to 0.86 and cuts max drawdown from -76% to -35%; the
+   expanding-window HMM *lowers* Sharpe to 0.29. It de-risks 59% of months versus the
+   rule's 19%, flagging ordinary high-volatility periods rather than the specific
+   bear-plus-rebound state that kills momentum.
+
+Building the published benchmark first is what made result 5 visible. Without it, the
+HMM's -35% drawdown would have looked like a success.
 
 ## Setup
 
