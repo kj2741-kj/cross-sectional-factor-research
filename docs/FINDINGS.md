@@ -143,9 +143,10 @@ Daniel-Moskowitz on an extended sample rather than a new discovery.
 
 ## Limitations
 
-- No transaction costs. Momentum's turnover is high and reversal's is extreme,
-  so the equal-weighted reversal premium in particular would not survive real
-  trading costs. This alone could eliminate several of the surviving results.
+- Transaction costs are now modelled (sections 8-9), and they did eliminate
+  several results, reversal most dramatically. What is still missing is a
+  **market-impact** term: these are effective-spread costs only, valid for a
+  modest book, not for institutional size.
 - Long-short deciles assume costless shorting and full availability of borrow,
   which is unrealistic in the small-cap short legs.
 - Six signals is a small menu. The HLZ hurdle is calibrated to the far larger
