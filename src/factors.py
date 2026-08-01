@@ -26,6 +26,27 @@ FILES = {
 }
 
 
+def _find_header(lines):
+    """Locate the real column-header row in a Ken French CSV.
+
+    Cannot search for a factor name: the prose preamble describes the factors by
+    name, so "Mom" appears on line 4 of the momentum file long before the actual
+    ",Mom" header on line 14. Matching on the name silently parsed the
+    description as the header and returned an empty frame.
+
+    The header is the first row whose leading field is blank (the unnamed date
+    column) and which is immediately followed by a row starting with digits.
+    """
+    for i, l in enumerate(lines[:-1]):
+        parts = l.split(",")
+        if len(parts) < 2 or parts[0].strip() != "":
+            continue
+        nxt = lines[i + 1].split(",")[0].strip()
+        if nxt[:4].isdigit():
+            return i
+    raise ValueError("Could not locate a header row in the Ken French file.")
+
+
 def load_ff(dataset="ff3", cache_dir=None, refresh=False):
     cache_dir = cache_dir or CACHE
     os.makedirs(cache_dir, exist_ok=True)
@@ -40,7 +61,7 @@ def load_ff(dataset="ff3", cache_dir=None, refresh=False):
         text = z.read(z.namelist()[0]).decode("latin-1")
 
     lines = text.splitlines()
-    hdr = next(i for i, l in enumerate(lines) if "Mkt-RF" in l or "Mom" in l)
+    hdr = _find_header(lines)
     cols = [c.strip() for c in lines[hdr].split(",")[1:]]
 
     dates, rows = [], []
