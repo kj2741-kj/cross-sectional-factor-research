@@ -157,3 +157,111 @@ Daniel-Moskowitz on an extended sample rather than a new discovery.
   model could.
 - Delisting-return substitution uses the Shumway constants rather than
   firm-specific recovery estimates.
+
+---
+
+# Addendum: industry structure and transaction costs
+
+## 7. Momentum is not industry momentum
+
+Moskowitz and Grinblatt (1999) argued individual momentum is really industry
+momentum in disguise. On this sample it is not.
+
+| | Mean %/mo | t(NW) | Sharpe |
+|---|---|---|---|
+| Pooled momentum | 1.182 | 4.35 | 0.57 |
+| Industry-neutral momentum | 1.072 | 4.67 | **0.65** |
+| Pure industry momentum (top 3 - bottom 3) | 0.320 | 2.43 | 0.29 |
+
+Neutralising within industry costs 9% of the premium and *raises* the Sharpe,
+because it sheds industry-concentration risk without shedding signal. Pure
+industry momentum is real but roughly a third the size. The Grundy-Martin (2001)
+position holds here.
+
+Value is the opposite case. The cheap decile is 19.3% financials against the
+expensive decile's 4.3%, while the expensive decile is 23.0% tech and 17.1%
+healthcare against 8.9% and 3.1%. A pooled value sort is substantially a
+long-banks, short-tech-and-biotech position. Momentum's largest industry
+imbalance is 3.5 percentage points.
+
+## 8. Transaction costs decide which results survive
+
+Turnover is measured from actual month-to-month holdings after drifting prior
+weights by their own returns. Costs follow a schedule anchored on US market
+structure (fixed commissions to 1975, decimalisation 2001), with equal-weighted
+portfolios charged 3.5x for their microcap tilt.
+
+| Signal | Wt | Turnover/mo | Gross % | Net % | Net t | Breakeven bps |
+|---|---|---|---|---|---|---|
+| Momentum | VW | 70.6% | 1.182 | **0.837** | **3.12** | 167 |
+| Investment | EW | 23.0% | 1.132 | **0.756** | **5.46** | 491 |
+| Value | EW | 17.7% | 1.103 | **0.823** | **4.21** | 623 |
+| Value | VW | 7.0% | 0.293 | 0.262 | 1.26 | 418 |
+| Momentum | EW | 60.8% | 0.737 | -0.318 | -1.25 | 121 |
+| **Reversal** | EW | **167.5%** | **1.839** | **-1.147** | **-4.26** | 110 |
+| **Reversal** | VW | **182.2%** | 0.297 | **-0.618** | **-3.48** | 16 |
+
+**Short-term reversal, the largest gross premium in the study, is the largest
+net loss.** At 167-182% monthly turnover it needs to be traded roughly twice
+over every month. Its value-weighted version breaks even at a one-way cost of 16
+basis points, which is above what the market actually charged for most of this
+sample. This reproduces Novy-Marx and Velikov (2016) and retroactively justifies
+treating the earlier gross reversal result as an artifact.
+
+Value-weighted momentum survives net at t = 3.12, still clearing the
+Harvey-Liu-Zhu hurdle, with a breakeven of 167bps against a modern cost of
+roughly 6-12bps.
+
+Post-2003 net, value-weighted, nothing survives. Equal-weighted, investment
+(t = 3.24) and value (t = 2.39) do, because their turnover is low enough that
+costs barely touch them.
+
+## 9. The sector strategy is cost-robust but low-octane
+
+Twelve FF industries ranked, long the top three and short the bottom three,
+monthly, costed at 4bps one-way for ETF-level execution.
+
+| Signal | Turnover/mo | Gross % | Net % | Net t | Sharpe | Breakeven bps |
+|---|---|---|---|---|---|---|
+| Combined composite | 28.2% | 0.325 | 0.314 | 2.72 | 0.35 | **115** |
+| Sector investment | 16.9% | 0.254 | 0.247 | 2.31 | 0.31 | 150 |
+| Sector momentum | 44.1% | 0.320 | 0.302 | 2.29 | 0.27 | 73 |
+| Sector profitability | 15.0% | 0.212 | 0.206 | 1.76 | 0.25 | 142 |
+| Sector value | 15.1% | 0.128 | 0.122 | 1.00 | 0.13 | 85 |
+
+Costs are almost irrelevant here: the composite breaks even at 115bps against
+an actual 4bps. That is the genuine advantage of trading factors at the sector
+level, and it is exactly the objection Dichtl et al. (2019) raise against
+dynamic factor strategies.
+
+But the gross spread is small. Net of costs the composite earns 3.8%/year
+against value-weighted momentum's 10.1%. Cost-robustness does not compensate for
+having roughly one tenth the cross-sectional dispersion to work with. And
+post-2003 the sector composite fails too (t = 0.90).
+
+**Caveat on the comparison.** These are effective-spread costs and contain no
+market-impact term, so they describe a modest book. At institutional scale
+momentum's 70% monthly turnover across thousands of names generates impact that
+the sector strategy structurally avoids. The comparison would narrow, possibly
+reverse, and this model cannot say by how much.
+
+## 10. The regime overlay is a momentum-crash hedge, not a regime timer
+
+Applying the Daniel-Moskowitz panic rule to the sector composite makes it worse:
+
+| | Ann. return | Sharpe |
+|---|---|---|
+| Sector composite, net | 4.6% | 0.43 |
+| + DM panic overlay | 3.0% | 0.33 |
+
+The same rule that lifts momentum's Sharpe from 0.62 to 0.86 costs the sector
+composite 0.10 of Sharpe. This is the sharpest statement of what the regime
+signal actually is: it identifies the state in which *momentum's short leg
+violently rebounds*, not a general state of "bad for factor strategies". A
+diversified composite has little momentum-crash exposure to hedge, so switching
+it off in panic states only forgoes return.
+
+Combined with the earlier finding that the HMM loses to this rule, the regime
+conclusion for the whole study is narrow and specific: regime conditioning
+worked in exactly one place, for exactly the reason the published paper said it
+would, and generalised to nothing else tested.
