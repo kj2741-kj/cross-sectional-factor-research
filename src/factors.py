@@ -25,6 +25,11 @@ FILES = {
     "mom": "F-F_Momentum_Factor_CSV.zip",
 }
 
+DAILY_FILES = {
+    "ff3": "F-F_Research_Data_Factors_daily_CSV.zip",
+    "ff5": "F-F_Research_Data_5_Factors_2x3_daily_CSV.zip",
+}
+
 
 def _find_header(lines):
     """Locate the real column-header row in a Ken French CSV.
@@ -77,6 +82,46 @@ def load_ff(dataset="ff3", cache_dir=None, refresh=False):
     df = pd.DataFrame(rows, index=pd.DatetimeIndex(dates, name="date"), columns=cols)
     df = df.mask(df <= -99.0) / 100.0          # published in percent
     df.index = df.index + pd.offsets.MonthEnd(0)  # align to CRSP month-end
+    df.to_csv(path)
+    return df
+
+
+def load_ff_daily(dataset="ff3", cache_dir=None, refresh=False):
+    """Daily Fama-French factors, needed for the Ang et al. (2006) volatility
+    signals: idiosyncratic and total volatility are both defined on daily
+    returns within a single month, and cannot be built from the monthly series.
+
+    Same header-detection and percent-to-decimal handling as `load_ff`; the
+    only structural difference is an 8-digit YYYYMMDD date key instead of
+    6-digit YYYYMM.
+    """
+    cache_dir = cache_dir or CACHE
+    os.makedirs(cache_dir, exist_ok=True)
+    path = os.path.join(cache_dir, f"{dataset}_daily.csv")
+    if os.path.exists(path) and not refresh:
+        return pd.read_csv(path, index_col=0, parse_dates=True)
+
+    req = urllib.request.Request(BASE + DAILY_FILES[dataset],
+                                 headers={"User-Agent": "Mozilla/5.0"})
+    raw = urllib.request.urlopen(req, timeout=60).read()
+    with zipfile.ZipFile(io.BytesIO(raw)) as z:
+        text = z.read(z.namelist()[0]).decode("latin-1")
+
+    lines = text.splitlines()
+    hdr = _find_header(lines)
+    cols = [c.strip() for c in lines[hdr].split(",")[1:]]
+
+    dates, rows = [], []
+    for line in lines[hdr + 1:]:
+        parts = line.split(",")
+        key = parts[0].strip()
+        if len(key) != 8 or not key.isdigit() or len(parts) - 1 != len(cols):
+            continue
+        dates.append(pd.to_datetime(key, format="%Y%m%d"))
+        rows.append([float(p) for p in parts[1:]])
+
+    df = pd.DataFrame(rows, index=pd.DatetimeIndex(dates, name="date"), columns=cols)
+    df = df.mask(df <= -99.0) / 100.0
     df.to_csv(path)
     return df
 

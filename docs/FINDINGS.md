@@ -266,3 +266,84 @@ Combined with the earlier finding that the HMM loses to this rule, the regime
 conclusion for the whole study is narrow and specific: regime conditioning
 worked in exactly one place, for exactly the reason the published paper said it
 would, and generalised to nothing else tested.
+
+
+---
+
+# Addendum 2: idiosyncratic volatility, done correctly, and the final 9-signal panel
+
+## 11. Correcting the volatility signal
+
+The 8-signal panel in Addendum 1 included `lowvol`/`ivol`, estimated from a
+36-month rolling window of **monthly** returns. Validating against
+Chen-Zimmermann's reference implementation (`docs/VALIDATION.md`) showed this
+does not measure the same thing as the published Ang, Hodrick, Xing and Zhang
+(2006) factor, which is defined on **daily** returns within a single month.
+Correlation with the real signal was only 0.32-0.81, with the wrong sign of
+mean return.
+
+The signal was rebuilt from real daily CRSP data (71.8M rows pulled via
+`scripts/pull_crsp_daily.py`) using the exact published construction. Against
+Chen-Zimmermann's own methodology (full-universe breakpoints), it now
+correlates 0.94-0.95 and the magnitudes match closely (1.20% vs 1.15%/month,
+t = 3.41 vs 3.23). The corrected signals, `lowvol_daily`, `ivol_capm_daily`
+and `ivol_ff3_daily`, replace the flawed `lowvol`/`ivol` in every table below.
+
+## 12. Under this study's tradeable convention: beta explains the raw return,
+alpha is where the signal lives
+
+| Signal | Beta | Net ann. (full sample) | Net ann. (post-2003) | FF3 alpha (post-2003) | t(alpha) |
+|---|---|---|---|---|---|
+| lowvol_daily | -0.71 | -2.46% | -0.73% | **+11.18%** | **2.70** |
+| ivol_capm_daily | -0.50 | -0.03% | +0.94% | **+9.16%** | **2.25** |
+| ivol_ff3_daily | -0.47 | -1.21% | -2.38% | +5.25% | 1.30 |
+
+A long-low-vol/short-high-vol book carries beta -0.5 to -1.0. Over a market
+that rose most of the sample, that beta alone erases the raw return. The FF3
+alpha, which strips that out, is **the largest post-2003 alpha of any signal
+in the study** for two of the three constructions.
+
+## 13. Final 9-signal panel: 6 core signals + 3 corrected volatility signals
+
+Raw net return, multiple-testing corrected, NYSE breakpoints, value-weighted:
+
+| | Full sample | | Post-2003 | |
+|---|---|---|---|---|
+| Criterion | Survivors | | Survivors | |
+| BH FDR 5% | mom, rev | | **none** | |
+| HLZ t > 3.0 | mom, rev | | **none** | |
+
+(`rev` survives as a significant **loser**, not a winner, on this two-sided
+test: -7.42% ann., t = -3.48.)
+
+FF3-alpha, same signals, same periods:
+
+| | Full sample | Post-2003 |
+|---|---|---|
+| BH FDR 5% | value(-), mom, prof, rev(-) | size(-), value(-), prof, **lowvol_daily**, **ivol_capm_daily** |
+| HLZ t > 3.0 | mom, prof, rev(-) | **prof only** |
+
+Two volatility signals clear the more lenient BH FDR bar post-2003 on alpha,
+where nothing else new does. Neither clears the strict HLZ t > 3 bar. Read
+together with section 3's result that profitability is the only signal to
+survive *any* hurdle post-2003 on raw returns, the honest summary is:
+
+**Profitability remains the one unambiguous post-2003 survivor.** The
+corrected volatility signals are the second-most-promising result in the
+study — real construction, validated against the published literature,
+economically coherent (short-beta exposure explains the raw-return weakness) —
+but they fall short of the strict multiple-testing bar this study has applied
+throughout, and should be reported as suggestive rather than established.
+
+## Limitations, updated
+
+- The alpha-based multiple-testing panel is a genuinely different test from
+  the raw-return panel used everywhere else in this study (it asks "does this
+  beat its own systematic risk exposure" rather than "does this make money"),
+  and was run specifically because the volatility signals' beta is large
+  enough to make the distinction material. It was not run for the other six
+  signals with the same rigor; doing so is the natural next step before
+  treating any alpha survivor as a settled result.
+- `ivol_capm_daily` has no Chen-Zimmermann reference series (`IdioVolCAPM` was
+  not present in their downloaded portfolio file), so it is unvalidated
+  against an external benchmark; only `ivol_ff3_daily` and `lowvol_daily` were.
